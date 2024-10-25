@@ -5,7 +5,7 @@
 #    Nome completo: Breno Ferreira Sales
 #    Matrícula: 202203561
 #    Turma: CC5N
-#    Email: breno.sales@uvv.br // Acho que é isso
+#    Email: breno.sales@uvvnet.com.br
 #
 # DECLARAÇÃO DE HONESTIDADE ACADÊMICA:
 # Eu afirmo que o código abaixo foi de minha autoria. Também afirmo que não

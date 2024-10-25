@@ -2,10 +2,10 @@
 # Preencha seus dados e leia a declaração de honestidade abaixo. NÃO APAGUE
 # nenhuma linha deste comentário de seu código!
 #
-#    Nome completo:
-#    Matrícula:
-#    Turma:
-#    Email:
+#    Nome completo: Breno Ferreira Sales
+#    Matrícula: 202203561
+#    Turma: CC5N
+#    Email: breno.sales@uvvnet.com.br
 #
 # DECLARAÇÃO DE HONESTIDADE ACADÊMICA:
 # Eu afirmo que o código abaixo foi de minha autoria. Também afirmo que não
@@ -34,20 +34,19 @@ class Imagem:
         self.pixels = pixels
 
     def get_pixel(self, x, y):
-        return self.pixels[x, y]
+        # return self.pixels[x, y]
+        return self.pixels[x + (y * self.largura)]
 
     def set_pixel(self, x, y, c):
-        self.pixels[x, y] = c
+        self.pixels[x + (y * self.largura)] = c   
 
     def aplicar_por_pixel(self, func):
         resultado = Imagem.nova(self.altura, self.largura)
-        for x in range(resultado.largura):
-            nova_cor = ""
-            y = ""
-            for y in range(resultado.altura):
+        for y in range(resultado.largura):
+            for x in range(resultado.altura):
                 cor = self.get_pixel(x, y)
                 nova_cor = func(cor)
-            resultado.set_pixel(y, x, nova_cor)
+                resultado.set_pixel(x, y, nova_cor)
         return resultado
 
     def invertida(self):
@@ -212,7 +211,18 @@ if __name__ == '__main__':
     # O código neste bloco só será executado quando você executar
     # explicitamente seu script e não quando os testes estiverem
     # sendo executados. Este é um bom lugar para gerar imagens, etc.
-    pass
+    
+    # Carregar imagem que será invertida
+    imagemOriginal = Imagem.carregar('./test_images/chess.png')
+
+    # Invertendo a imagem carregada
+    imagemInvertida = imagemOriginal.invertida()
+
+    # Salvando a imagem invertida em um diretório separado
+    imagemInvertida.salvar('./my_tests/imagemInvertidaTeste.png')
+
+    # Mostrando a imagem invertida na tela com o TKINTER
+    imagemInvertida.mostrar()
 
     # O código a seguir fará com que as janelas de Imagem.mostrar
     # sejam exibidas corretamente, quer estejamos executando
