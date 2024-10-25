@@ -34,23 +34,22 @@ class Imagem:
         self.pixels = pixels
 
     def get_pixel(self, x, y):
-        # return self.pixels[x, y]
-        return self.pixels[x + (y * self.largura)]
+        return self.pixels[y + (x * self.largura)]
 
     def set_pixel(self, x, y, c):
-        self.pixels[x + (y * self.largura)] = c   
+        self.pixels[y + (x * self.largura)] = c
 
     def aplicar_por_pixel(self, func):
-        resultado = Imagem.nova(self.altura, self.largura)
-        for y in range(resultado.largura):
-            for x in range(resultado.altura):
+        resultado = Imagem.nova(self.largura, self.altura)
+        for x in range(resultado.altura):
+            for y in range(resultado.largura):
                 cor = self.get_pixel(x, y)
                 nova_cor = func(cor)
                 resultado.set_pixel(x, y, nova_cor)
         return resultado
 
     def invertida(self):
-        return self.aplicar_por_pixel(lambda c: 256 - c)
+        return self.aplicar_por_pixel(lambda c: 255 - c)
 
     def borrada(self, n):
         raise NotImplementedError
@@ -211,9 +210,10 @@ if __name__ == '__main__':
     # O código neste bloco só será executado quando você executar
     # explicitamente seu script e não quando os testes estiverem
     # sendo executados. Este é um bom lugar para gerar imagens, etc.
-    
+    # --------------------------------------------------------------
+
     # Carregar imagem que será invertida
-    imagemOriginal = Imagem.carregar('./test_images/chess.png')
+    imagemOriginal = Imagem.carregar('./test_images/mushroom.png')
 
     # Invertendo a imagem carregada
     imagemInvertida = imagemOriginal.invertida()
@@ -224,6 +224,7 @@ if __name__ == '__main__':
     # Mostrando a imagem invertida na tela com o TKINTER
     imagemInvertida.mostrar()
 
+     # --------------------------------------------------------------
     # O código a seguir fará com que as janelas de Imagem.mostrar
     # sejam exibidas corretamente, quer estejamos executando
     # interativamente ou não:
