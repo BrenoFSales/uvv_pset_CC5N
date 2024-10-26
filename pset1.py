@@ -34,6 +34,17 @@ class Imagem:
         self.pixels = pixels
 
     def get_pixel(self, x, y):
+        # # Tratamento para casos de coordenadas inválidas quando aplicado uma correlação
+        # if (x < 0):   # Se o x for negativo,
+        #     x = 0     # será sobrescrito por 0
+        # elif (x >= self.largura):   # Se x for maior que a matriz,
+        #     x = self.largura - 1    # subtrai 1 até o tamnho da matriz
+        
+        # if (y < 0):   # Se o y for negativo,
+        #     y = 0     # será sobrescrito por 0
+        # elif (y >= self.altura):    # Se y for maior que a matriz,
+        #     y = self.altura - 1     # subtrai 1 até o tamnho da matriz
+
         return self.pixels[y + (x * self.largura)]
 
     def set_pixel(self, x, y, c):
@@ -213,13 +224,13 @@ if __name__ == '__main__':
     # --------------------------------------------------------------
 
     # Carregar imagem que será invertida
-    imagemOriginal = Imagem.carregar('./test_images/mushroom.png')
+    imagemOriginal = Imagem.carregar('./test_images/bluegill.png')
 
     # Invertendo a imagem carregada
     imagemInvertida = imagemOriginal.invertida()
 
     # Salvando a imagem invertida em um diretório separado
-    imagemInvertida.salvar('./my_tests/imagemInvertidaTeste.png')
+    imagemInvertida.salvar('./my_tests/Teste-Q2.png')
 
     # Mostrando a imagem invertida na tela com o TKINTER
     imagemInvertida.mostrar()
