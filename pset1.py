@@ -34,26 +34,59 @@ class Imagem:
         self.pixels = pixels
 
     def get_pixel(self, x, y):
-        # # Tratamento para casos de coordenadas inválidas quando aplicado uma correlação
-        # if (x < 0):   # Se o x for negativo,
-        #     x = 0     # será sobrescrito por 0
-        # elif (x >= self.largura):   # Se x for maior que a matriz,
-        #     x = self.largura - 1    # subtrai 1 até o tamnho da matriz
-        
-        # if (y < 0):   # Se o y for negativo,
-        #     y = 0     # será sobrescrito por 0
-        # elif (y >= self.altura):    # Se y for maior que a matriz,
-        #     y = self.altura - 1     # subtrai 1 até o tamnho da matriz
-
-        return self.pixels[y + (x * self.largura)]
+        return self.pixels[y * self.largura + x]
 
     def set_pixel(self, x, y, c):
-        self.pixels[y + (x * self.largura)] = c
+        self.pixels[y * self.largura + x] = c
+
+    def aplicar_kernel(self, kernel: list[list[int]]):
+        """
+        Essa função aplica um kernel(2D) à imagem, através de correlação de matrizes conforme o PDF do pset.
+        """
+
+        # Dimensões do kernel
+        altura_kernel = len(kernel)
+        largura_kernel = len(kernel[0])
+
+        imagem_resultado = Imagem.nova(self.largura, self.altura)
+
+        """
+        - Calcule o padding vertical e horizontal
+            Esses valores de padding são usados para adicionar pixels ao redor da imagem de entrada,
+            antes de aplicar a correlação. Isso ajuda a preservar as bordas da imagem e evitar problemas de limite como:
+            -- IndexError: list index out of range
+        """
+        padding_y = altura_kernel // 2
+        padding_x = largura_kernel // 2
+
+        # Percorre cada pixel da imagem
+        for y in range(self.altura):
+            for x in range(self.largura):
+                soma = 0
+
+                # Aplica o kernel no pixel atual
+                for ky in range(altura_kernel):
+                    for kx in range(largura_kernel):
+                        # Calcula as coordenadas do pixel correspondente
+                        pixel_y = y + ky - padding_y
+                        pixel_x = x + kx - padding_x
+
+                        # Verifica se o pixel está dentro da imagem
+                        if (0 <= pixel_x < self.largura and 
+                            0 <= pixel_y < self.altura):
+                            # Obtem o valor do pixel e multplica pelo kernel
+                            soma += self.get_pixel(pixel_x, pixel_y) * kernel[ky][kx]
+
+                # Atribui o novo valor do pixel, limitando-o entre 0 e 255, para evitar números negativos, maiores que 255 (escala de ciza), e float. 
+                imagem_resultado.set_pixel(x, y, min(max(int(soma), 0), 255))
+
+        return imagem_resultado
+    
 
     def aplicar_por_pixel(self, func):
         resultado = Imagem.nova(self.largura, self.altura)
-        for x in range(resultado.altura):
-            for y in range(resultado.largura):
+        for x in range(resultado.largura):
+            for y in range(resultado.altura):
                 cor = self.get_pixel(x, y)
                 nova_cor = func(cor)
                 resultado.set_pixel(x, y, nova_cor)
@@ -223,19 +256,59 @@ if __name__ == '__main__':
     # sendo executados. Este é um bom lugar para gerar imagens, etc.
     # --------------------------------------------------------------
 
-    # Carregar imagem que será invertida
-    imagemOriginal = Imagem.carregar('./test_images/bluegill.png')
+    # Definir um kernel
+    kernel_identidade = [
+        [0, 0, 0],
+        [0, 1, 0],
+        [0, 0, 0]
+    ]
 
-    # Invertendo a imagem carregada
-    imagemInvertida = imagemOriginal.invertida()
+    kernel_translacao = [
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0]
+    ]
 
-    # Salvando a imagem invertida em um diretório separado
-    imagemInvertida.salvar('./my_tests/Teste-Q2.png')
+    kernel_media = [
+        [0.0, 0.2, 0.0],
+        [0.2, 0.2, 0.2],
+        [0.0, 0.2, 0.0]
+    ]
 
-    # Mostrando a imagem invertida na tela com o TKINTER
-    imagemInvertida.mostrar()
+    kernel_questao_4 = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ]
 
-     # --------------------------------------------------------------
+    kernel_blur = [
+        [1/273, 4/273, 6/273, 4/273, 1/273],
+        [4/273, 16/273, 24/273, 16/273, 4/273],
+        [6/273, 24/273, 36/273, 24/273, 6/273],
+        [4/273, 16/273, 24/273, 16/273, 4/273],
+        [1/273, 4/273, 6/273, 4/273, 1/273]
+    ]
+
+    # Carregar imagem
+    imagemOriginal = Imagem.carregar('./test_images/pigbird.png')
+
+    # Aplicar a correlação
+    imagemCorrelacionada = imagemOriginal.aplicar_kernel(kernel_blur)
+
+    # Salvar e mostrar a nova imagem
+    imagemCorrelacionada.salvar('./my_tests/Teste-Correlacao.png')
+    print(imagemCorrelacionada)
+    imagemCorrelacionada.mostrar()
+
+    # --------------------------------------------------------------
     # O código a seguir fará com que as janelas de Imagem.mostrar
     # sejam exibidas corretamente, quer estejamos executando
     # interativamente ou não:
