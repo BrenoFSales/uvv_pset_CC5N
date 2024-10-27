@@ -96,7 +96,16 @@ class Imagem:
         return self.aplicar_por_pixel(lambda c: 255 - c)
 
     def borrada(self, n):
-        raise NotImplementedError
+        """
+        Conforme o PDF do PSET, um desfoque de caixa é um kernel de matriz quadrada n x n,
+        de valores identicos que soman 1, e é isso que a variável 'pixels_kernel' se encarrega de fazer
+        """
+        n = 5
+        pixels_kernel = 1 / (n * n)
+        
+        # Basicamente cria a matriz quadrada, aplicando em cada elemento o valor da variável 'pixels_kernel'
+        kernel = [[pixels_kernel for x in range(n)] for y in range(n)]
+        return self.aplicar_kernel(kernel)
 
     def focada(self, n):
         raise NotImplementedError
@@ -256,57 +265,12 @@ if __name__ == '__main__':
     # sendo executados. Este é um bom lugar para gerar imagens, etc.
     # --------------------------------------------------------------
 
-    # Definir um kernel
-    kernel_identidade = [
-        [0, 0, 0],
-        [0, 1, 0],
-        [0, 0, 0]
-    ]
-
-    kernel_translacao = [
-        [0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0],
-        [1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0]
-    ]
-
-    kernel_media = [
-        [0.0, 0.2, 0.0],
-        [0.2, 0.2, 0.2],
-        [0.0, 0.2, 0.0]
-    ]
-
-    kernel_questao_4 = [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0]
-    ]
-
-    kernel_blur = [
-        [1/273, 4/273, 6/273, 4/273, 1/273],
-        [4/273, 16/273, 24/273, 16/273, 4/273],
-        [6/273, 24/273, 36/273, 24/273, 6/273],
-        [4/273, 16/273, 24/273, 16/273, 4/273],
-        [1/273, 4/273, 6/273, 4/273, 1/273]
-    ]
-
     # Carregar imagem
     imagemOriginal = Imagem.carregar('./test_images/pigbird.png')
 
-    # Aplicar a correlação
-    imagemCorrelacionada = imagemOriginal.aplicar_kernel(kernel_blur)
+    imagemBorrada = imagemOriginal.borrada(2)
 
-    # Salvar e mostrar a nova imagem
-    imagemCorrelacionada.salvar('./my_tests/Teste-Correlacao.png')
-    print(imagemCorrelacionada)
-    imagemCorrelacionada.mostrar()
+    imagemBorrada.mostrar()
 
     # --------------------------------------------------------------
     # O código a seguir fará com que as janelas de Imagem.mostrar
@@ -314,3 +278,53 @@ if __name__ == '__main__':
     # interativamente ou não:
     if WINDOWS_OPENED and not sys.flags.interactive:
         tk_root.mainloop()
+
+
+
+
+    # # Definir um kernel
+    # kernel_identidade = [
+    #     [0, 0, 0],
+    #     [0, 1, 0],
+    #     [0, 0, 0]
+    # ]
+
+    # kernel_translacao = [
+    #     [0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0],
+    #     [1, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0]
+    # ]
+
+    # kernel_media = [
+    #     [0.0, 0.2, 0.0],
+    #     [0.2, 0.2, 0.2],
+    #     [0.0, 0.2, 0.0]
+    # ]
+
+    # kernel_questao_4 = [
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [1, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #     [0, 0, 0, 0, 0, 0, 0, 0, 0]
+    # ]
+
+    # kernel_blur = [
+    #     [1/273, 4/273, 6/273, 4/273, 1/273],
+    #     [4/273, 16/273, 24/273, 16/273, 4/273],
+    #     [6/273, 24/273, 36/273, 24/273, 6/273],
+    #     [4/273, 16/273, 24/273, 16/273, 4/273],
+    #     [1/273, 4/273, 6/273, 4/273, 1/273]
+    # ]
+
+    # kernel_borda = [
+    #     [0, -1, 0],
+    #     [-1, 4, -1],
+    #     [0, -1, 0]
+    # ]
