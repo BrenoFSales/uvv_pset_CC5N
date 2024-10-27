@@ -44,27 +44,24 @@ class Imagem:
         Essa função aplica um kernel(2D) à imagem, através de correlação de matrizes conforme o PDF do pset.
         """
 
-        # Dimensões do kernel
         altura_kernel = len(kernel)
         largura_kernel = len(kernel[0])
 
         imagem_resultado = Imagem.nova(self.largura, self.altura)
 
         """
-        - Calcule o padding vertical e horizontal
-            Esses valores de padding são usados para adicionar pixels ao redor da imagem de entrada,
-            antes de aplicar a correlação. Isso ajuda a preservar as bordas da imagem e evitar problemas de limite como:
-            -- IndexError: list index out of range
+        Esses valores de padding são usados para adicionar pixels ao redor da imagem de entrada, antes
+        de aplicar a correlação. Isso ajuda a preservar as bordas da imagem e evitar problemas de limite como:
+        -- IndexError: list index out of range
         """
         padding_y = altura_kernel // 2
         padding_x = largura_kernel // 2
 
-        # Percorre cada pixel da imagem
         for y in range(self.altura):
             for x in range(self.largura):
                 soma = 0
 
-                # Aplica o kernel no pixel atual
+                # Aplica o kernel no pixel atual da matriz da imagem
                 for ky in range(altura_kernel):
                     for kx in range(largura_kernel):
                         # Calcula as coordenadas do pixel correspondente
@@ -100,10 +97,9 @@ class Imagem:
         Conforme o PDF do PSET, um desfoque de caixa é um kernel de matriz quadrada n x n,
         de valores identicos que soman 1, e é isso que a variável 'pixels_kernel' se encarrega de fazer
         """
-        n = 5
         pixels_kernel = 1 / (n * n)
         
-        # Basicamente cria a matriz quadrada, aplicando em cada elemento o valor da variável 'pixels_kernel'
+        # Cria a matriz quadrada, aplicando em cada elemento o valor da variável 'pixels_kernel'
         kernel = [[pixels_kernel for x in range(n)] for y in range(n)]
         return self.aplicar_kernel(kernel)
 
@@ -111,7 +107,41 @@ class Imagem:
         raise NotImplementedError
 
     def bordas(self):
-        raise NotImplementedError
+        # Kernels Sobel
+        Kx = [
+            [-1, 0, 1],
+            [-2, 0, 2],
+            [-1, 0, 1]
+        ]
+        Ky = [
+            [-1, -2, -1],
+            [0, 0, 0],
+            [1, 2, 1]
+        ]
+
+        imagem_resultado = Imagem.nova(self.largura, self.altura)
+
+        for y in range(self.altura):
+            for x in range(self.largura):
+                soma_x = 0
+                soma_y = 0
+
+                # Aplica o kernel de Sobel
+                for ky in range(len(Ky)):
+                    for kx in range(len(Kx[0])):
+                        pixel_y = y + ky - 1
+                        pixel_x = x + kx - 1
+
+                        if (0 <= pixel_x < self.largura and 0 <= pixel_y < self.altura):
+                            valor_pixel = self.get_pixel(pixel_x, pixel_y)
+                            soma_x += valor_pixel * Kx[ky][kx]
+                            soma_y += valor_pixel * Ky[ky][kx]
+
+                magnitude = round(math.sqrt(soma_x ** 2 + soma_y ** 2))
+                imagem_resultado.set_pixel(x, y, min(max(magnitude, 0), 255))
+
+        return imagem_resultado
+
 
     # Abaixo deste ponto estão utilitários para carregar, salvar e mostrar
     # as imagens, bem como para a realização de testes. Você deve ler as funções
@@ -266,11 +296,11 @@ if __name__ == '__main__':
     # --------------------------------------------------------------
 
     # Carregar imagem
-    imagemOriginal = Imagem.carregar('./test_images/pigbird.png')
+    imagemOriginal = Imagem.carregar('./test_images/mushroom.png')
 
-    imagemBorrada = imagemOriginal.borrada(2)
+    imagemBordas = imagemOriginal.bordas()
 
-    imagemBorrada.mostrar()
+    imagemBordas.mostrar()
 
     # --------------------------------------------------------------
     # O código a seguir fará com que as janelas de Imagem.mostrar
@@ -278,53 +308,3 @@ if __name__ == '__main__':
     # interativamente ou não:
     if WINDOWS_OPENED and not sys.flags.interactive:
         tk_root.mainloop()
-
-
-
-
-    # # Definir um kernel
-    # kernel_identidade = [
-    #     [0, 0, 0],
-    #     [0, 1, 0],
-    #     [0, 0, 0]
-    # ]
-
-    # kernel_translacao = [
-    #     [0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0],
-    #     [1, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0]
-    # ]
-
-    # kernel_media = [
-    #     [0.0, 0.2, 0.0],
-    #     [0.2, 0.2, 0.2],
-    #     [0.0, 0.2, 0.0]
-    # ]
-
-    # kernel_questao_4 = [
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [1, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0]
-    # ]
-
-    # kernel_blur = [
-    #     [1/273, 4/273, 6/273, 4/273, 1/273],
-    #     [4/273, 16/273, 24/273, 16/273, 4/273],
-    #     [6/273, 24/273, 36/273, 24/273, 6/273],
-    #     [4/273, 16/273, 24/273, 16/273, 4/273],
-    #     [1/273, 4/273, 6/273, 4/273, 1/273]
-    # ]
-
-    # kernel_borda = [
-    #     [0, -1, 0],
-    #     [-1, 4, -1],
-    #     [0, -1, 0]
-    # ]
