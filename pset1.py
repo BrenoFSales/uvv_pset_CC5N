@@ -34,54 +34,42 @@ class Imagem:
         self.pixels = pixels
 
     def get_pixel(self, x, y):
+        x = max(0, min(x, self.largura - 1))
+        y = max(0, min(y, self.altura - 1))
         return self.pixels[y * self.largura + x]
 
     def set_pixel(self, x, y, c):
+        x = max(0, min(x, self.largura - 1))
+        y = max(0, min(y, self.altura - 1))
         self.pixels[y * self.largura + x] = c
 
-    def aplicar_kernel(self, kernel: list[list[int]]):
-        """
-        Essa função aplica um kernel(2D) à imagem, através de correlação de matrizes conforme o PDF do pset.
-        """
+    # ---------------------------------------------------------------
 
-        # Dimensões do kernel
+    def aplicar_kernel(self, kernel: list[list[int]]):
         altura_kernel = len(kernel)
         largura_kernel = len(kernel[0])
+        nova_imagem = Imagem.nova(self.largura, self.altura)
 
-        imagem_resultado = Imagem.nova(self.largura, self.altura)
-
-        """
-        - Calcule o padding vertical e horizontal
-            Esses valores de padding são usados para adicionar pixels ao redor da imagem de entrada,
-            antes de aplicar a correlação. Isso ajuda a preservar as bordas da imagem e evitar problemas de limite como:
-            -- IndexError: list index out of range
-        """
-        padding_y = altura_kernel // 2
-        padding_x = largura_kernel // 2
-
-        # Percorre cada pixel da imagem
-        for y in range(self.altura):
-            for x in range(self.largura):
+        # Percorre cada pixel da imagem e aplica o kernel
+        for y in range(self.altura - altura_kernel):
+            for x in range(self.largura - largura_kernel):
                 soma = 0
 
-                # Aplica o kernel no pixel atual
                 for ky in range(altura_kernel):
                     for kx in range(largura_kernel):
-                        # Calcula as coordenadas do pixel correspondente
-                        pixel_y = y + ky - padding_y
-                        pixel_x = x + kx - padding_x
+                        # Calcula as coordenadas do pixel-alvo dentro da área do kernel
+                        pixel_x = x + kx
+                        pixel_y = y + ky
 
-                        # Verifica se o pixel está dentro da imagem
-                        if (0 <= pixel_x < self.largura and 
-                            0 <= pixel_y < self.altura):
-                            # Obtem o valor do pixel e multplica pelo kernel
-                            soma += self.get_pixel(pixel_x, pixel_y) * kernel[ky][kx]
+                        # Obtém o valor do pixel e aplica o kernel
+                        soma += self.get_pixel(pixel_x, pixel_y) * kernel[ky][kx]
 
-                # Atribui o novo valor do pixel, limitando-o entre 0 e 255, para evitar números negativos, maiores que 255 (escala de ciza), e float. 
-                imagem_resultado.set_pixel(x, y, min(max(int(soma), 0), 255))
+                # Define o valor do pixel na nova imagem (truncando para estar entre 0 e 255)
+                nova_imagem.set_pixel(x, y, max(0, min(255, int(soma))))
 
-        return imagem_resultado
+        return nova_imagem
     
+    # ---------------------------------------------------------------
 
     def aplicar_por_pixel(self, func):
         resultado = Imagem.nova(self.largura, self.altura)
@@ -266,7 +254,7 @@ if __name__ == '__main__':
     # --------------------------------------------------------------
 
     # Carregar imagem
-    imagemOriginal = Imagem.carregar('./test_images/pigbird.png')
+    imagemOriginal = Imagem.carregar('./test_images/mushroom.png')
 
     imagemBorrada = imagemOriginal.borrada(2)
 
@@ -278,53 +266,3 @@ if __name__ == '__main__':
     # interativamente ou não:
     if WINDOWS_OPENED and not sys.flags.interactive:
         tk_root.mainloop()
-
-
-
-
-    # # Definir um kernel
-    # kernel_identidade = [
-    #     [0, 0, 0],
-    #     [0, 1, 0],
-    #     [0, 0, 0]
-    # ]
-
-    # kernel_translacao = [
-    #     [0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0],
-    #     [1, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0]
-    # ]
-
-    # kernel_media = [
-    #     [0.0, 0.2, 0.0],
-    #     [0.2, 0.2, 0.2],
-    #     [0.0, 0.2, 0.0]
-    # ]
-
-    # kernel_questao_4 = [
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [1, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #     [0, 0, 0, 0, 0, 0, 0, 0, 0]
-    # ]
-
-    # kernel_blur = [
-    #     [1/273, 4/273, 6/273, 4/273, 1/273],
-    #     [4/273, 16/273, 24/273, 16/273, 4/273],
-    #     [6/273, 24/273, 36/273, 24/273, 6/273],
-    #     [4/273, 16/273, 24/273, 16/273, 4/273],
-    #     [1/273, 4/273, 6/273, 4/273, 1/273]
-    # ]
-
-    # kernel_borda = [
-    #     [0, -1, 0],
-    #     [-1, 4, -1],
-    #     [0, -1, 0]
-    # ]
