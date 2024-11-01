@@ -50,11 +50,6 @@ class Imagem:
 
         imagem_resultado = Imagem.nova(self.largura, self.altura)
 
-        """
-        Esses valores de padding são usados para adicionar pixels ao redor da imagem de entrada, antes
-        de aplicar a correlação. Isso ajuda a preservar as bordas da imagem e evitar problemas de limite como:
-        -- IndexError: list index out of range
-        """
         padding_y = altura_kernel // 2
         padding_x = largura_kernel // 2
 
@@ -72,7 +67,7 @@ class Imagem:
                         soma += self.get_pixel(pixel_x, pixel_y) * kernel[ky][kx]
 
                 # Atribui o novo valor do pixel, limitando-o entre 0 e 255, para evitar números negativos, maiores que 255 (escala de ciza), e float. 
-                imagem_resultado.set_pixel(x, y, min(max(int(soma), 0), 255))
+                imagem_resultado.set_pixel(x, y, min(max(round(soma), 0), 255))
 
         return imagem_resultado
     
@@ -291,13 +286,6 @@ if __name__ == '__main__':
     # explicitamente seu script e não quando os testes estiverem
     # sendo executados. Este é um bom lugar para gerar imagens, etc.
     # --------------------------------------------------------------
-
-    # Carregar imagem
-    imagemOriginal = Imagem.carregar('./test_images/mushroom.png')
-
-    imagemBorrada = imagemOriginal.borrada(3)
-
-    imagemBorrada.mostrar()
 
     # --------------------------------------------------------------
     # O código a seguir fará com que as janelas de Imagem.mostrar
