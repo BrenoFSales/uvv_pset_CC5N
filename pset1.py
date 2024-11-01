@@ -34,25 +34,34 @@ class Imagem:
         self.pixels = pixels
 
     def get_pixel(self, x, y):
+        # Verifica se os pixels estão nos limites da imagem
         x = max(0, min(x, self.largura - 1))
         y = max(0, min(y, self.altura - 1))
         return self.pixels[y * self.largura + x]
 
     def set_pixel(self, x, y, c):
+        # Verifica se os pixels estão nos limites da imagem
         x = max(0, min(x, self.largura - 1))
         y = max(0, min(y, self.altura - 1))
         self.pixels[y * self.largura + x] = c
 
     def aplicar_kernel(self, kernel: list[list[int]]):
+        """
+            Essa função aplica um kernel a uma imagem, através do cálculo de correlação linear orientado no PSET,
+            retornando uma nova imagem com os valores calculados para apllicar os filtros.
+        """
 
         altura_kernel = len(kernel)
         largura_kernel = len(kernel[0])
 
-        imagem_resultado = Imagem.nova(self.largura, self.altura)
+        # Cria uma nova imagem com o mesmo tamanho da original (cópia)
+        nova_imagem = Imagem.nova(self.largura, self.altura)
 
+        # Calcula os valores de padding (raio do kernel) para garantir que o kernel seja aplicado no pixel centralizado
         padding_y = altura_kernel // 2
         padding_x = largura_kernel // 2
 
+        # Percorre os pixels da imagem
         for y in range(self.altura):
             for x in range(self.largura):
                 soma = 0
@@ -64,13 +73,13 @@ class Imagem:
                         pixel_y = y + ky - padding_y
                         pixel_x = x + kx - padding_x
 
+                        # "soma" recebe o resultado da operação de correlação linear
                         soma += self.get_pixel(pixel_x, pixel_y) * kernel[ky][kx]
 
-                # Atribui o novo valor do pixel, limitando-o entre 0 e 255, para evitar números negativos, maiores que 255 (escala de ciza), e float. 
-                imagem_resultado.set_pixel(x, y, min(max(round(soma), 0), 255))
+                # Atribui o novo valor do pixel, limitando-o entre 0 e 255, para evitar números negativos, maiores que 255 (escala de ciza) 
+                nova_imagem.set_pixel(x, y, min(max(round(soma), 0), 255))
 
-        return imagem_resultado
-    
+        return nova_imagem
 
     def aplicar_por_pixel(self, func):
         resultado = Imagem.nova(self.largura, self.altura)
@@ -89,29 +98,53 @@ class Imagem:
         Conforme o PDF do PSET, um desfoque de caixa é um kernel de matriz quadrada n x n,
         de valores identicos que soman 1, e é isso que a variável 'pixels_kernel' se encarrega de fazer
         """
-        pixels_kernel = 1 / (n * n)
-        
-        # Cria a matriz quadrada, aplicando em cada elemento o valor da variável 'pixels_kernel'
-        kernel = [[pixels_kernel for x in range(n)] for y in range(n)]
+        # Verifica se a matriz quadrada recebeu um número de elementos ímpar
+        if (n % 2 == 0):
+            print("A matriz do Kernel precisa ser ímpar")
+        else:
+            # "pixels_kernel" guarda o valor de todos os elementos do kernel, e a soma de todos totalizam '1'
+            pixels_kernel = 1 / (n * n)
+            
+            # Cria a matriz quadrada, aplicando em cada elemento o valor da variável 'pixels_kernel'
+            kernel = [[pixels_kernel for x in range(n)] for y in range(n)]
         return self.aplicar_kernel(kernel)
 
     def focada(self, n):
-        raise NotImplementedError
+        # Cria uma nova imagem com o mesmo tamanho da original (cópia)
+        nova_imagem = Imagem.nova(self.largura, self.altura)
+        
+        # Aplica o desfoque de caixa na imagem original e obtém a imagem borrada
+        imagem_borrada = self.borrada(n)
+        
+        for y in range(self.altura):
+            for x in range(self.largura):
+                pixel_original = self.get_pixel(x, y)
+                pixel_borrado = imagem_borrada.get_pixel(x, y)
+                
+                # pixel_focado = round((2 * pixel_original) - pixel_borrado)
+                
+                # Aplica a fórmula dada no PSET: round(2 * I_xy - B_xy), além de garantir o limite dos valores na escala de cinza
+                pixel_focado = max(0, min(255, round((2 * pixel_original) - pixel_borrado)))
+
+                nova_imagem.set_pixel(x, y, pixel_focado)
+        
+        return nova_imagem
 
     def bordas(self):
         # Kernels Sobel
-        Kx = [
+        Kx = [ # Esse kernel realça as variações na horizontal
             [-1, 0, 1],
             [-2, 0, 2],
             [-1, 0, 1]
         ]
-        Ky = [
+        Ky = [ # Esse kernel realça as variações na vertical
             [-1, -2, -1],
             [0, 0, 0],
             [1, 2, 1]
         ]
 
-        imagem_resultado = Imagem.nova(self.largura, self.altura)
+        # Cria uma nova imagem com o mesmo tamanho da original (cópia)
+        nova_imagem = Imagem.nova(self.largura, self.altura)
 
         for y in range(self.altura):
             for x in range(self.largura):
@@ -121,18 +154,22 @@ class Imagem:
                 # Aplica o kernel de Sobel
                 for ky in range(len(Ky)):
                     for kx in range(len(Kx[0])):
+                        # Calcula as coordenadas do pixel correspondente
                         pixel_y = y + ky - 1
-                        pixel_x = x + kx - 1
+                        pixel_x = x + kx - 1 
 
-                        if (0 <= pixel_x < self.largura and 0 <= pixel_y < self.altura):
-                            valor_pixel = self.get_pixel(pixel_x, pixel_y)
-                            soma_x += valor_pixel * Kx[ky][kx]
-                            soma_y += valor_pixel * Ky[ky][kx]
+                        valor_pixel = self.get_pixel(pixel_x, pixel_y)
 
-                magnitude = round(math.sqrt(soma_x ** 2 + soma_y ** 2))
-                imagem_resultado.set_pixel(x, y, min(max(magnitude, 0), 255))
+                        # Soma os valores dos pixels resultantes da correlação linear dos Kernels de Sobel
+                        soma_x += valor_pixel * Kx[kx][ky]
+                        soma_y += valor_pixel * Ky[kx][ky]
 
-        return imagem_resultado
+                # Calcula a magnitude do vetor gradiente (magnitude)
+                magnitude = math.sqrt((soma_x ** 2) + (soma_y ** 2))
+                # Normaliza a magnitude para o intervalo [0, 255]
+                nova_imagem.set_pixel(x, y, min(max(round(magnitude), 0), 255))
+
+        return nova_imagem
 
 
     # Abaixo deste ponto estão utilitários para carregar, salvar e mostrar
@@ -286,6 +323,13 @@ if __name__ == '__main__':
     # explicitamente seu script e não quando os testes estiverem
     # sendo executados. Este é um bom lugar para gerar imagens, etc.
     # --------------------------------------------------------------
+
+    # Carregar imagem
+    imagemOriginal = Imagem.carregar('./test_images/mushroom.png')
+
+    imagemFocada = imagemOriginal.bordas()
+
+    imagemFocada.mostrar()
 
     # --------------------------------------------------------------
     # O código a seguir fará com que as janelas de Imagem.mostrar
