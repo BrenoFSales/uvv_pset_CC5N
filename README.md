@@ -49,12 +49,12 @@ Além desse script com todo o algorítmo de processamento das imagens, há tamb�
         > Função para borrar a imagem, ela utiliza o método já criado *aplicar_kernel*, e basicamente cria um kernel de acordo com as orientaçõs do PSET, um desfoque de caixa é um kernel de matriz quadrada n x n, de valores identicos que soman 1, para que seja feito essa lógica o seguinte cálculo foi utilizado: `pixels_kernel  = 1 / (n * n)`, e é isso que a variável 'pixels_kernel' se encarrega de fazer.
 
     - focada
-        > Esse método aplica um filtro de imagem com mais nitidez, o cálculo para esse efeito foi dado no PSET ![alt text](md-images/nitidez.png)
+        > Esse método aplica um filtro de imagem com mais nitidez, o cálculo para esse efeito foi dado no PSET: <br> ![alt text](md-images/nitidez.png)
 
     - bordas
-        > Aplica um efeito que destaca as bordas dos elementos presentes na imagem, utilizando um operador Sobel, este detector de borda é mais complexo do que um kernel simples de imagem, mas é uma combinação de dois kernels de imagem Kx e Ky: 
-        > ![alt text](md-images/kernels-sobel.png) 
-        >Após calcular Ox e Oy correlacionando a entrada com Kx e Ky respectivamente, cada pixel da saída é a raiz quadrada da soma dos quadrados dos pixels correspondentes em Ox e Oy:
+        > Aplica um efeito que destaca as bordas dos elementos presentes na imagem, utilizando um operador Sobel, este detector de borda é mais complexo do que um kernel simples de imagem, mas é uma combinação de dois kernels de imagem Kx e Ky: <br>
+        > ![alt text](md-images/kernels-sobel.png) <br>
+        >Após calcular Ox e Oy correlacionando a entrada com Kx e Ky respectivamente, cada pixel da saída é a raiz quadrada da soma dos quadrados dos pixels correspondentes em Ox e Oy: <br>
         > ![alt text](md-images/calc-sobel.png)
 
 * Observações:
