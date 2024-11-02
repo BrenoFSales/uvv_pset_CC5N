@@ -52,7 +52,10 @@ Além desse script com todo o algorítmo de processamento das imagens, há tamb�
         > Esse método aplica um filtro de imagem com mais nitidez, o cálculo para esse efeito foi dado no PSET ![alt text](md-images/nitidez.png)
 
     - bordas
-        > Aplica um efeito que destaca as bordas dos elementos presentes na imagem, utilizando um operador Sobel, este detector de borda é mais complexo do que um kernel simples de imagem, mas é uma combinação de dois kernels de imagem Kx e Ky: ![alt text](kernels-sobel.png) Após calcular Ox e Oy correlacionando a entrada com Kx e Ky respectivamente, cada pixel da saída é a raiz quadrada da soma dos quadrados dos pixels correspondentes em Ox e Oy: ![alt text](calc-sobel.png)
+        > Aplica um efeito que destaca as bordas dos elementos presentes na imagem, utilizando um operador Sobel, este detector de borda é mais complexo do que um kernel simples de imagem, mas é uma combinação de dois kernels de imagem Kx e Ky: 
+        > ![alt text](md-images/kernels-sobel.png) 
+        >Após calcular Ox e Oy correlacionando a entrada com Kx e Ky respectivamente, cada pixel da saída é a raiz quadrada da soma dos quadrados dos pixels correspondentes em Ox e Oy:
+        > ![alt text](md-images/calc-sobel.png)
 
 * Observações:
     - Todos os métodos foram implementados respeitando os valores dos pixels dentro da escala de cinza, com os utilitários min() e max(), além de utilizar o round() para o arredondamento de valores não inteiros.
